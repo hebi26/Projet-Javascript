@@ -5,7 +5,7 @@
     "Vehicle_Description": "AUDI Q7             Busin 3,0 V6TDI 200kW quattro tiptronic",
     "Vehicle_Price_including_VAT": 75450,
     "Vehicle_Kind": "V",
-    "Vehicle_CO2": 149,
+    "Vehicle_CO2": 360,
     "Fuel_Type": "D",
     "Maximum_Weight": 2765
   },

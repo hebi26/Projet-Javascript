@@ -5,6 +5,8 @@ $(document).ready(function() {
     year = year+1;
     console.log(year);
 
+    $("#mainbox").hide();
+
     //function tri par alphabetique dun tableau
     Array.prototype.localeSort = function localeSort() {
         return this.sort(function(a, b) { return a.localeCompare(b); });
@@ -16,7 +18,10 @@ $(document).ready(function() {
         selectModel();
     });
 
+
+
     $('#models').on('change', function () {
+        $("#mainbox").hide();
         calc();
     });
 
@@ -32,11 +37,13 @@ $(document).ready(function() {
             if($.inArray(el, uniqresult) === -1) uniqresult.push(el);   //on push un valeur uniq dans uniqresult
         });
 
+        var tabmarque = "";
         uniqresult.localeSort();                                        //on appele function tri pour notre tableau
 
         for (var i = 0; i < uniqresult.length; i++) {                           //on boucle sur notre tableau uniqresult
-            $("#marques").append('<option value="' + uniqresult[i] + '">' + uniqresult[i] + '</option>');   //pour chaque entrée on rempli les options
+            tabmarque += '<option value="' + uniqresult[i] + '">' + uniqresult[i] + '</option>'
         }
+        $("#marques").append(tabmarque);   //pour chaque entrée on rempli les options
     });
 
 
@@ -44,14 +51,23 @@ $(document).ready(function() {
 
     function selectModel(){
         var vh_make = $("#marques").val();
+        var tabcar = "";
+        var tabmodel = [];
         $("#models").html("<option>Models</option>");
 
         $.getJSON('vehicules.json', function(data) {
             $.each(data,  function (index, x) {         //on parcours le json des vehicules
                 if(x.Vehicle_Make === vh_make){         //si la value du select = value json
-                    $("#models").append('<option value="'+ x.Vehicle_Model +'">' + x.Vehicle_Description + '</option>');        //on affiche les données qui corespondent
+                    tabmodel.push(x.Vehicle_Description);
                 }
-            })
+            });
+
+                tabmodel.localeSort();
+
+                for(var i=0; i<tabmodel.length; i++){
+                    tabcar += '<option value="'+ tabmodel[i] +'">' + tabmodel[i] + '</option>';
+                }
+            $("#models").append(tabcar);        //on affiche les données qui corespondent
         })
     }
 
@@ -59,12 +75,12 @@ $(document).ready(function() {
 
     function calc(){
 
-        var vh_model = $("#models").val();
+        var vh_desc = $("#models").val();
         $("#box").html("");
 
         $.getJSON('vehicules.json', function(data) {
             $.each(data,  function (index, x) {              //on reparcours le json
-                if(x.Vehicle_Model === vh_model){           //si le modele du select corespond au modele du json
+                if(x.Vehicle_Description === vh_desc){           //si le modele du select corespond au modele du json
 
                     var currentCO2 = x.Vehicle_CO2;         //on definir variable CO2
                     if(currentCO2 === 360){                 //si CO2 > 360 alors taxRate = 50;
@@ -105,25 +121,32 @@ $(document).ready(function() {
                         //on affiche les informations du vehicule choisi
 
                         $('#box').html(
+                            '<p class="tabtext">Options & accessories</p>'+
                             //on genere des input pour les options
-                            '<button class="scrollOption">options</button>'+
-                            '<div class="boxoption">'+
-                            '<input id="option1" class="options" type="text" placeholder="prix option..." value="0"><br>'+
-                            '<input id="option2" class="options" type="text" placeholder="prix option..." value="0"><br>'+
-                            '<input id="option3" class="options" type="text" placeholder="prix option..." value="0"><br>'+
-                            '<input id="option4" class="options" type="text" placeholder="prix option..." value="0"><br>'+
-                            '<input id="option5" class="options" type="text" placeholder="prix option..." value="0"><br>'+
-                            '</div>'+
+                            '<div class="row rowoption">'+
+                                '<p class="info">Cliquez sur les boutons pour ajouter le prix de vos options et accessoires (en euro). ' +
+                                'Si vous n\'en rajoutez pas, veuillez laisser "0" dans les champs correspondants.</p>'+
+                                '<div class="col-xs-12 col-md-6">'+
+                                    '<button class="scrollOption btn btn-primary">options</button>'+
+                                    '<div class="boxoption">'+
+                                        '<input id="option1" class="options" type="text" placeholder="prix option..." value="0"><br>'+
+                                        '<input id="option2" class="options" type="text" placeholder="prix option..." value="0"><br>'+
+                                        '<input id="option3" class="options" type="text" placeholder="prix option..." value="0"><br>'+
+                                        '<input id="option4" class="options" type="text" placeholder="prix option..." value="0"><br>'+
+                                        '<input id="option5" class="options" type="text" placeholder="prix option..." value="0"><br>'+
+                                    '</div>'+
+                                '</div>'+
                             //on genere input accessoires
-                            '<button class="scrollAcces">accessoires</button>'+
-                            '<div class="boxacces">'+
-                            '<input id="acces1" class="acces" type="text" placeholder="prix accessoires..." value="0"><br>'+
-                            '<input id="acces2" class="acces" type="text" placeholder="prix accessoires..." value="0"><br>'+
-                            '<input id="acces3" class="acces" type="text" placeholder="prix accessoires..." value="0"><br>'+
-                            '<input id="acces4" class="acces" type="text" placeholder="prix accessoires..." value="0"><br>'+
-                            '<input id="acces5" class="acces" type="text" placeholder="prix accessoires..." value="0"><br>'+
-                            '</div>');
-
+                                '<div class="col-xs-12 col-md-6">'+
+                                    '<button class="scrollAcces btn btn-primary">accessoires</button>'+
+                                    '<div class="boxacces">'+
+                                        '<input id="acces1" class="acces" type="text" placeholder="prix accessoires..." value="0"><br>'+
+                                        '<input id="acces2" class="acces" type="text" placeholder="prix accessoires..." value="0"><br>'+
+                                        '<input id="acces3" class="acces" type="text" placeholder="prix accessoires..." value="0"><br>'+
+                                        '<input id="acces4" class="acces" type="text" placeholder="prix accessoires..." value="0"><br>'+
+                                        '<input id="acces5" class="acces" type="text" placeholder="prix accessoires..." value="0"><br>'+
+                                    '</div>'+
+                                '</div>');
 
                         //petit script d'animation toggle
                         $('.boxoption').hide();
@@ -172,7 +195,6 @@ $(document).ready(function() {
                         //function de calcul general
                         function calcul() {
 
-
                             //on reparcours les values des input option et acces pour eviter les undefined
                             var totalPriceOption = 0;
                             for(var i=1; i<$(".options").length+1; i++){
@@ -212,14 +234,43 @@ $(document).ready(function() {
                                 limitedBenefit= Math.round(limitedBenefit / 10) * 10;
                             //on affiche les resultas des calcul
 
-                            $('#box2').html(
-                                '<p>LIST PRICE : '+ x.Vehicle_Price_including_VAT +'</p>'+
-                                '<p>CO2: '+ currentCO2+'</p>'+
-                                '<p>TAXRATE: '+ taxRate +'</p>'+
-                                '<p> TOTAL TAX: ' + totaltax + '</p>' +
-                                '<p>TOTAL PRICE WITH TAX: ' + totalprice + '</p>'+
-                                '<p>UNLIMITED BENEFIT : ' + unlimitedBenefit + '</p>'+
-                                '<p>LIMITED BENEFIT : ' + limitedBenefit + '</p>');
+                            $('#boxinfo').html(
+                                '<div class="row rowinfo">'+
+                                    '<p class="tabtext">Informations</p>'+
+                                    '<div class="colinfo col-xs-12 col-md-6">'+
+                                        '<div class="viewinfo">'+
+                                            '<p><strong>List Price : </strong>'+ x.Vehicle_Price_including_VAT +' €</p>'+
+                                            '<p><strong>CO2: </strong>'+ currentCO2 +' g/km</p>'+
+                                            '<p><strong>Tax Rate: </strong>'+ taxRate +' %</p>'+
+                                        '</div>'+
+                                    '</div>'+
+                                    '<div class="colinfo col-xs-12 col-md-6">'+
+                                        '<div class="viewinfo">'+
+                                            '<p><strong>Model : </strong>'+ x.Vehicle_Model +'</p>'+
+                                            '<p><strong>Fuel Type : </strong>'+ x.Fuel_Type +'</p>'+
+                                            '<p><strong>Max Weight : </strong>' +x.Maximum_Weight +' Kg</p>'+
+                                        '</div>'+
+                                    '</div>'+
+                                '</div>'+
+                                '<div class="row rowbilan">'+
+                                    '<div class="colinfo col-xs-12 col-md-6">'+
+                                        '<p class="tabtext">Total</p>'+
+                                        '<div class="viewinfo">'+
+                                            '<p><strong>Total Tax: </strong>' + totaltax + ' €</p>' +
+                                            '<p><strong>Total Price: </strong>' + totalprice + ' €</p>'+
+                                        '</div>'+
+                                    '</div>'+
+                                    '<div class="colinfo col-xs-12 col-md-6">'+
+                                        '<p class="tabtext">Benefits</p>'+
+                                        '<div class="viewinfo">'+
+                                            '<p><strong>Unlimited Benefit : </strong>' + unlimitedBenefit + ' €</p>'+
+                                            '<p><strong>Limited Benefit : </strong>' + limitedBenefit + ' €</p>'+
+                                        '</div>'+
+                                    '</div>'+
+                                '</div>'
+                                );
+
+                            $("#mainbox").fadeIn('slow');
                         }
                         calcul();           //on appele la function pour calculer au on change
                     });

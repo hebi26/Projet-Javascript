@@ -1,9 +1,14 @@
 $(document).ready(function() {
-
+//script pour recuperer l'année en cours
     var ladate = new Date();
     var year = ladate.getFullYear();
     year = year+1;
     console.log(year);
+
+    //function tri par alphabetique dun tableau
+    Array.prototype.localeSort = function localeSort() {
+        return this.sort(function(a, b) { return a.localeCompare(b); });
+    };
 
     //liste des functions utilisé au onchange
 
@@ -13,6 +18,25 @@ $(document).ready(function() {
 
     $('#models').on('change', function () {
         calc();
+    });
+
+    // recuperation marques et inject dans le select option
+    $.getJSON('vehicules.json', function(data){                 //on recup json vehicles
+        var results = [];
+        var uniqresult = [];
+        $.each(data, function(index, x){                        //on parcours et insere dans tableau results
+            results.push(x.Vehicle_Make);
+        });
+
+        $.each(results, function(i, el){                                //pour chaque entrée du tableau result
+            if($.inArray(el, uniqresult) === -1) uniqresult.push(el);   //on push un valeur uniq dans uniqresult
+        });
+
+        uniqresult.localeSort();                                        //on appele function tri pour notre tableau
+
+        for (var i = 0; i < uniqresult.length; i++) {                           //on boucle sur notre tableau uniqresult
+            $("#marques").append('<option value="' + uniqresult[i] + '">' + uniqresult[i] + '</option>');   //pour chaque entrée on rempli les options
+        }
     });
 
 
@@ -84,27 +108,28 @@ $(document).ready(function() {
                             //on genere des input pour les options
                             '<button class="scrollOption">options</button>'+
                             '<div class="boxoption">'+
-                            '<input id="option1" type="text" placeholder="prix option..." value="0"><br>'+
-                            '<input id="option2" type="text" placeholder="prix option..." value="0"><br>'+
-                            '<input id="option3" type="text" placeholder="prix option..." value="0"><br>'+
-                            '<input id="option4" type="text" placeholder="prix option..." value="0"><br>'+
-                            '<input id="option5" type="text" placeholder="prix option..." value="0"><br>'+
+                            '<input id="option1" class="options" type="text" placeholder="prix option..." value="0"><br>'+
+                            '<input id="option2" class="options" type="text" placeholder="prix option..." value="0"><br>'+
+                            '<input id="option3" class="options" type="text" placeholder="prix option..." value="0"><br>'+
+                            '<input id="option4" class="options" type="text" placeholder="prix option..." value="0"><br>'+
+                            '<input id="option5" class="options" type="text" placeholder="prix option..." value="0"><br>'+
                             '</div>'+
-
+                            //on genere input accessoires
                             '<button class="scrollAcces">accessoires</button>'+
                             '<div class="boxacces">'+
-                            '<input id="acces1" type="text" placeholder="prix accessoires..." value="0"><br>'+
-                            '<input id="acces2" type="text" placeholder="prix accessoires..." value="0"><br>'+
-                            '<input id="acces3" type="text" placeholder="prix accessoires..." value="0"><br>'+
-                            '<input id="acces4" type="text" placeholder="prix accessoires..." value="0"><br>'+
-                            '<input id="acces5" type="text" placeholder="prix accessoires..." value="0"><br>'+
+                            '<input id="acces1" class="acces" type="text" placeholder="prix accessoires..." value="0"><br>'+
+                            '<input id="acces2" class="acces" type="text" placeholder="prix accessoires..." value="0"><br>'+
+                            '<input id="acces3" class="acces" type="text" placeholder="prix accessoires..." value="0"><br>'+
+                            '<input id="acces4" class="acces" type="text" placeholder="prix accessoires..." value="0"><br>'+
+                            '<input id="acces5" class="acces" type="text" placeholder="prix accessoires..." value="0"><br>'+
                             '</div>');
 
+
+                        //petit script d'animation toggle
                         $('.boxoption').hide();
                         $('.scrollOption').click(function(){
                             $('.boxoption').toggle(300);
                         });
-
 
                         $('.boxacces').hide();
                         $('.scrollAcces').click(function(){
@@ -113,54 +138,33 @@ $(document).ready(function() {
 
                         //si on change la valuer des options
                         $("#option1, #option2, #option3, #option4, #option5").on('change', function (effectiveTotalAcces){
-                            var priceOption1 = $("#option1").val();
-                            priceOption1=parseInt(priceOption1);
 
-                            var priceOption2 = $("#option2").val();
-                            priceOption2 = parseInt(priceOption2);
+                            var totalPriceOption = 0;
+                            for(var i=1; i<$(".options").length+1; i++){                    //on boucle sur les classes options
+                                totalPriceOption += parseInt($("#option"+i).val());         //on recup et parseint les vlaue de chaque options
+                            }
 
-                            var priceOption3 = $("#option3").val();
-                            priceOption3 = parseInt(priceOption3);
+                            var totalTaxOption = ((totalPriceOption * 0.945) * (taxRate * 0.01)) / (1 - (taxRate * 0.01));      //calcul totaltaxoption
+                            var totalOption = totalTaxOption + totalPriceOption;                                                //option totale
 
-                            var priceOption4 = $("#option4").val();
-                            priceOption4 = parseInt(priceOption4);
-
-                            var priceOption5 = $("#option5").val();
-                            priceOption5 = parseInt(priceOption5);
-
-                            var totalPriceOption = priceOption1 + priceOption2 + priceOption3 + priceOption4 + priceOption5;    //calcul prix total option
-                            var totalTaxOption = ((totalPriceOption * 0.945) * (taxRate * 0.01)) / (1 - (taxRate * 0.01));
-                            var totalOption = totalTaxOption + totalPriceOption;
-
-                            calcul(totalTaxOption, totalOption, effectiveTotalAcces); //on rappele la fonction de calcul general
+                            calcul(totalTaxOption, totalOption, effectiveTotalAcces);               //on rappele la fonction de calcul general
                         });
 
 
                         //si on change values accessoires
 
                         $("#acces1, #acces2, #acces3, #acces4, #acces5").on('change', function (totalTaxOption, totalOption) {
-                            var priceAcces1 = $("#acces1").val();
-                            priceAcces1 = parseInt(priceAcces1);
 
-                            var priceAcces2 = $("#acces2").val();
-                            priceAcces2 = parseInt(priceAcces2);
-
-                            var priceAcces3 = $("#acces3").val();
-                            priceAcces3 = parseInt(priceAcces3);
-
-                            var priceAcces4 = $("#acces4").val();
-                            priceAcces4 = parseInt(priceAcces4);
-
-                            var priceAcces5 = $("#acces5").val();
-                            priceAcces5 = parseInt(priceAcces5);
-
-                            var totalAcces = priceAcces1 + priceAcces2 + priceAcces3 + priceAcces4 + priceAcces5;
-                            var effectiveTotalAcces = totalAcces - 850;
-                            if (effectiveTotalAcces < 0 ){
+                            var totalAcces = 0;
+                            for(var i=1; i<$(".acces").length+1; i++){                  //on boucle sur la clase acces
+                                totalAcces += parseInt($("#acces"+i).val());            //on recup et parseint les values des acces
+                            }
+                            var effectiveTotalAcces = totalAcces - 850;                 //calcul prix effectif avec reduc acces
+                            if (effectiveTotalAcces < 0 ){                              //condition pour pas <0
                                 effectiveTotalAcces = 0;
                             }
 
-                            calcul(totalTaxOption, totalOption, effectiveTotalAcces);
+                            calcul(totalTaxOption, totalOption, effectiveTotalAcces);      //on rappele function calcul
                         });
 
 
@@ -168,41 +172,19 @@ $(document).ready(function() {
                         //function de calcul general
                         function calcul() {
 
-                            var priceOption1 = $("#option1").val();
-                            priceOption1=parseInt(priceOption1);
 
-                            var priceOption2 = $("#option2").val();
-                            priceOption2 = parseInt(priceOption2);
-
-                            var priceOption3 = $("#option3").val();
-                            priceOption3 = parseInt(priceOption3);
-
-                            var priceOption4 = $("#option4").val();
-                            priceOption4 = parseInt(priceOption4);
-
-                            var priceOption5 = $("#option5").val();
-                            priceOption5 = parseInt(priceOption5);
-
-                            var totalPriceOption = priceOption1 + priceOption2 + priceOption3 + priceOption4 + priceOption5;    //calcul prix total option
+                            //on reparcours les values des input option et acces pour eviter les undefined
+                            var totalPriceOption = 0;
+                            for(var i=1; i<$(".options").length+1; i++){
+                                totalPriceOption += parseInt($("#option"+i).val());
+                            }
                             var totalTaxOption = ((totalPriceOption * 0.945) * (taxRate * 0.01)) / (1 - (taxRate * 0.01));
                             var totalOption = totalTaxOption + totalPriceOption;
 
-                            var priceAcces1 = $("#acces1").val();
-                            priceAcces1 = parseInt(priceAcces1);
-
-                            var priceAcces2 = $("#acces2").val();
-                            priceAcces2 = parseInt(priceAcces2);
-
-                            var priceAcces3 = $("#acces3").val();
-                            priceAcces3 = parseInt(priceAcces3);
-
-                            var priceAcces4 = $("#acces4").val();
-                            priceAcces4 = parseInt(priceAcces4);
-
-                            var priceAcces5 = $("#acces5").val();
-                            priceAcces5 = parseInt(priceAcces5);
-
-                            var totalAcces = priceAcces1 + priceAcces2 + priceAcces3 + priceAcces4 + priceAcces5;
+                            var totalAcces = 0;
+                            for(var i=1; i<$(".acces").length+1; i++){
+                                totalAcces += parseInt($("#acces"+i).val());
+                            }
                             var effectiveTotalAcces = totalAcces - 850;
                             if (effectiveTotalAcces < 0 ){
                                 effectiveTotalAcces = 0;
@@ -216,14 +198,18 @@ $(document).ready(function() {
 
                             //calcul taxes totales
                             var totaltax = pricetax + totalTaxOption;
+                                totaltax = Math.round(totaltax * 100)/100;
 
                             //calcul prix total vehicuke + taxes(vehicule + option)
                             var totalprice = effectivePrice + pricetax + totalOption + effectiveTotalAcces;
+                                totalprice = Math.round(totalprice * 100)/100;
 
                             //calcule benefit
                             var effectiveTotalPrice = effectivePrice + effectiveTotalAcces;
                             var unlimitedBenefit=(effectiveTotalPrice*0.014)+255;
+                                unlimitedBenefit= Math.round(unlimitedBenefit / 10) * 10;
                             var limitedBenefit=(effectiveTotalPrice*0.014)+105;
+                                limitedBenefit= Math.round(limitedBenefit / 10) * 10;
                             //on affiche les resultas des calcul
 
                             $('#box2').html(

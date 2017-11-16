@@ -89,37 +89,18 @@ $(document).ready(function() {
 
                     $.getJSON('CO2TAX.json', function(data) {       //getjson sur le tableau CO2TAX
                         var arr = [];                               //on initie un tableau vide
-                        $.each(data, function (index, x){           //on parcours CO2TAX
-                            arr.push(x);                              //on push tout le contenue dans le tableau arr
+                        $.each(data[year], function (index, x){           //on parcours CO2TAX
+                            arr.push(x);//on push tout le contenue dans le tableau arr
+
                         });
-
-                        switch(year) {                                      //en fonction de l'année en cours
-
-                            case 2018:                                               //si 2018
-                                for (var i in arr[0]) {                                  //on boucle sur la clef 2018 du tableau
-                                    if (parseInt(arr[0][i].CO2) === currentCO2) {       //si la valeur du tableau co2 = notre variable co2
-                                        taxRate = arr[0][i].TAX;                    //alors on recupere la valeur de la taxe qui correspond
-                                        console.log(taxRate);
-                                    }
-                                }
-                                break;
-
-                            case 2019:                                              //si 2018
-                                for (var i in arr[1]) {                                 //on boucle sur la clef 2019 du tableau
-                                    if (parseInt(arr[1][i].CO2) === currentCO2) {       //si la valeur du tableau co2 = notre variable co2
-                                        taxRate = arr[1][i].TAX;                    //alors on recupere la valeur de la taxe qui correspond
-                                        console.log(taxRate)
-                                    }
-                                }
-                                break;
-
-                            default:
-                                alert('Taxes non calculabes pour cette année');     //default: si on est pas en 2018 ou 2019, message d'erreur.
-                                break;
+                        console.log(arr);
+                        for (var i in arr) {
+                            if (parseInt(arr[i].CO2) === currentCO2) {       //si la valeur du tableau co2 = notre variable co2
+                                taxRate = arr[i].TAX;
+                            }
                         }
 
                         //on affiche les informations du vehicule choisi
-
                         $('#box').html(
                             '<p class="tabtext">Options & accessories</p>'+
                             //on genere des input pour les options
